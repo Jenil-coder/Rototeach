@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Rototech Engineering — AI Sales Dashboard</title>
+  <meta name="description"
+    content="AI-powered B2B sales analytics dashboard for Rototech Engineering Systems. Real-time insights from Google Sheets data." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js"></script>
+</head>
+
+<body>
+
+  <!-- ==================== SCREEN 0: GREETING ==================== -->
+  <div id="greetingScreen" style="display:none;position:fixed;inset:0;background:#1A1A1A;flex-direction:column;align-items:center;justify-content:center;z-index:199;gap:0.75rem;">
+    <div id="greetHello" style="font-size:20px;color:rgba(255,255,255,0.55);font-weight:400;opacity:0;transform:translateY(10px);transition:all 0.4s ease;">Hello,</div>
+    <div style="font-size:42px;font-weight:800;color:#fff;letter-spacing:-1px;display:flex;align-items:center;gap:10px;">
+      <span id="greetName" style="overflow:hidden;white-space:nowrap;max-width:0;transition:max-width 1.4s steps(40);"></span>
+      <span id="greetCursor" style="width:3px;height:46px;background:#F2D94A;display:inline-block;opacity:0;"></span>
+    </div>
+    <div id="greetSub" style="font-size:15px;color:rgba(255,255,255,0.4);opacity:0;transition:opacity 0.5s ease;margin-top:4px;">Ready to explore your sales data?</div>
+  </div>
+
+  <!-- ==================== SCREEN 1: CONNECT ==================== -->
+  <div id="uploadScreen" class="screen active">
+    <!-- LEFT DARK PANEL -->
+    <div style="width:50%;min-height:100vh;background:#1A1A1A;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 2.5rem;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-80px;right:-80px;width:320px;height:320px;background:radial-gradient(circle,rgba(242,217,74,0.07) 0%,transparent 70%);border-radius:50%;pointer-events:none;"></div>
+
+      <img src="MVR_LOGO_PNG.png" style="width:180px;margin-bottom:2rem;filter:brightness(0) invert(1);" alt="Rototech"/>
+
+      <div style="font-size:21px;font-weight:700;color:#fff;text-align:center;margin-bottom:5px;">Rototech Engineering Systems</div>
+      <div style="font-size:13px;color:#F2D94A;text-align:center;margin-bottom:1.75rem;">Zero Liquid Discharge Solutions</div>
+
+      <div style="width:36px;height:2px;background:#F2D94A;border-radius:2px;margin-bottom:1.75rem;"></div>
+
+      <div style="font-size:17px;font-weight:600;color:#fff;text-align:center;margin-bottom:4px;">Hello again, Jignesh Patel 👋</div>
+      <div style="font-size:13px;color:#888888;text-align:center;margin-bottom:1.75rem;">Your dashboard is ready.</div>
+
+      <div style="width:36px;height:2px;background:rgba(255,255,255,0.1);border-radius:2px;margin-bottom:1.75rem;"></div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:300px;">
+        <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:30px;padding:5px 13px;font-size:11px;color:rgba(255,255,255,0.65);display:flex;align-items:center;gap:5px;"><span style="color:#F2D94A">✦</span> Google Sheets Live</div>
+        <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:30px;padding:5px 13px;font-size:11px;color:rgba(255,255,255,0.65);display:flex;align-items:center;gap:5px;"><span style="color:#F2D94A">✦</span> AI Auto-Insights</div>
+        <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:30px;padding:5px 13px;font-size:11px;color:rgba(255,255,255,0.65);display:flex;align-items:center;gap:5px;"><span style="color:#F2D94A">✦</span> Pipeline Tracker</div>
+        <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:30px;padding:5px 13px;font-size:11px;color:rgba(255,255,255,0.65);display:flex;align-items:center;gap:5px;"><span style="color:#F2D94A">✦</span> PDF Export</div>
+        <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:30px;padding:5px 13px;font-size:11px;color:rgba(255,255,255,0.65);display:flex;align-items:center;gap:5px;"><span style="color:#F2D94A">✦</span> Pivot Analysis</div>
+        <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:30px;padding:5px 13px;font-size:11px;color:rgba(255,255,255,0.65);display:flex;align-items:center;gap:5px;"><span style="color:#F2D94A">✦</span> Task Manager</div>
+      </div>
+    </div>
+
+    <!-- RIGHT CREAM PANEL -->
+    <div style="width:50%;min-height:100vh;background:#F5F4E8;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 2.5rem;overflow-y:auto;">
+      <div style="width:100%;max-width:420px;">
+        <div id="timeGreeting" style="font-size:14px;color:#888888;margin-bottom:4px;"></div>
+        <div style="font-size:28px;font-weight:800;color:#1A1A1A;letter-spacing:-0.5px;margin-bottom:1.75rem;line-height:1.2;">Connect your data</div>
+
+        <!-- Google Sheets Connect -->
+        <div class="card connect-card" style="margin-bottom:16px;">
+          <div class="card-header-row">
+            <span class="gs-icon"><svg width="20" height="20" viewBox="0 0 20 20">
+                <rect width="20" height="20" rx="4" fill="#34A853" /><text x="10" y="14" text-anchor="middle"
+                  font-size="12" fill="white" font-weight="700">S</text>
+              </svg></span>
+            <div>
+              <div class="card-title">Connect Google Sheet</div>
+              <div class="card-subtitle">Paste the shareable link to your sales spreadsheet</div>
+            </div>
+          </div>
+          <div class="url-row">
+            <input id="sheetUrl" type="text" class="url-input" placeholder="https://docs.google.com/spreadsheets/d/..."
+              spellcheck="false" autocomplete="off" />
+            <button id="loadSheetBtn" class="btn-primary" onclick="handleLoadSheet()">Load Sheet</button>
+          </div>
+          <div id="connectError" class="connect-error" style="display:none;"></div>
+          <div class="hint-box">
+            <strong>Most reliable:</strong> File → Share → Publish to web → Sheet1 → CSV → Publish → paste that link here.
+            Or paste a regular share link — sheet must be <em>Anyone with the link can view</em>.
+          </div>
+        </div>
+
+        <div class="divider" style="text-align:center;position:relative;color:var(--light-gray);font-size:12px;margin:16px 0;">
+          <span style="background:#F5F4E8;padding:0 12px;position:relative;">or</span>
+        </div>
+        <button class="btn-demo" onclick="handleDemo()" style="display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer;transition:.2s;text-align:left;border:none;width:100%;background:#fff;border-radius:var(--r-card);margin-bottom:16px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Load Rototech Demo Data
+        </button>
+        <!-- <div id="connectQuoteBox" style="
+          margin-top:1.25rem;
+          padding:14px 16px;
+          background:var(--white-card);
+          border:var(--border-card);
+          border-radius:var(--r-card);
+          border-left:3px solid var(--near-black);
+          box-shadow:var(--shadow-card);
+          position:relative;
+        "> -->
+          <!-- <div style="font-size:18px;position:absolute;top:10px;left:14px;opacity:0.15;line-height:1;">❝</div>
+          <div id="connectQuoteText" style="
+            font-size:12px;
+            color:var(--text-body);
+            line-height:1.7;
+            font-style:italic;
+            padding-left:10px;
+            margin-bottom:6px;
+          "></div>
+          <div id="connectQuoteAuthor" style="
+            font-size:10px;
+            font-weight:700;
+            color:var(--mid-gray);
+            text-transform:uppercase;
+            letter-spacing:.06em;
+            padding-left:10px;
+          "></div> -->
+        </div>
+        <!-- <div class="api-input-row" style="display:flex;align-items:center;gap:10px;padding:14px 16px;background:#fff;border-radius:var(--r-card);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+          <input id="inlineApiInput" type="password" placeholder="Paste Claude API key for AI insights (optional)" oninput="API_KEY=this.value.trim();updateApiStatus()" style="flex:1;font-family:var(--mono);font-size:12px;background:transparent;border:none;outline:none;min-width:0;"/>
+          <span id="apiStatusDot" style="width:7px;height:7px;border-radius:50%;background:var(--light-gray);flex-shrink:0"></span>
+        </div> -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 2: LOADING ==================== -->
+  <div id="loadingScreen" class="screen">
+    <div class="loading-wrap">
+      <div class="spinner"></div>
+      <div class="loading-title">Wait analysing your sales data…</div>
+      <div class="steps-list">
+        <div class="step" id="step1"><span class="step-icon">🔗</span> Connecting to Google Sheet</div>
+        <div class="step" id="step2"><span class="step-icon">📥</span> Fetching &amp; data</div>
+        <div class="step" id="step3"><span class="step-icon">📊</span> Building charts &amp; KPIs</div>
+        <div class="step" id="step4"><span class="step-icon">🤖</span> Generating insights</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 3: DASHBOARD ==================== -->
+  <div id="dashboardScreen" class="screen">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-logo"><svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect width="7" height="7" rx="1.5" fill="#F2D94A" />
+            <rect x="11" width="7" height="7" rx="1.5" fill="#F2D94A" opacity=".6" />
+            <rect y="11" width="7" height="7" rx="1.5" fill="#F2D94A" opacity=".6" />
+            <rect x="11" y="11" width="7" height="7" rx="1.5" fill="#F2D94A" opacity=".3" />
+          </svg></div>
+        <span class="topbar-brand">Rototech Engineering</span>
+        <span id="fileNamePill" class="file-pill">demo-data</span>
+      </div>
+      <div class="topbar-right">
+        <!-- Export PDF -->
+        <button class="btn-topbar primary" onclick="exportPDF()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+          Export PDF
+        </button>
+
+        <!-- New Sheet -->
+        <button class="btn-topbar" onclick="goUpload()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          New Sheet
+        </button>
+
+        <!-- Refresh -->
+        <button class="btn-topbar" onclick="refreshSheet()" id="refreshBtn">
+          <svg id="refreshIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/>
+            <polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+          </svg>
+          Refresh
+        </button>
+
+        <!-- Theme Toggle -->
+        <button class="btn-topbar" onclick="toggleTheme()" id="themeToggleBtn">
+          <span id="themeLabelLight" style="display:flex;align-items:center;gap:5px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+            </svg>
+            Dark
+          </span>
+          <span id="themeLabelDark" style="display:none;align-items:center;gap:5px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            Light
+          </span>
+        </button>
+
+        <!-- API Key -->
+        <button class="btn-topbar" onclick="openApiKeyModal()" id="apiKeyBtn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="15" r="4"/>
+            <line x1="11" y1="12" x2="22" y2="1"/>
+            <line x1="18" y1="7" x2="21" y2="4"/>
+            <line x1="15" y1="7" x2="18" y2="10"/>
+          </svg>
+          <span id="apiKeyBtnLabel">API Key</span>
+          <span id="apiStatusDot" style="width:6px;height:6px;border-radius:50%;background:var(--light-gray);flex-shrink:0;"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MOTIVATIONAL QUOTE STRIP -->
+    <div id="dashQuoteStrip" style="
+      background:var(--near-black);
+      padding:6px 1.5rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+    ">
+      <span style="font-size:14px;opacity:0.4;">❝</span>
+      <span id="dashQuoteText" style="
+        font-size:11px;
+        color:rgba(255,255,255,0.5);
+        font-style:italic;
+        text-align:center;
+      "></span>
+      <span id="dashQuoteAuthor" style="
+        font-size:10px;
+        color:var(--yellow);
+        font-weight:600;
+        white-space:nowrap;
+        flex-shrink:0;
+      "></span>
+    </div>
+
+    <!-- NAV -->
+    <nav class="dash-nav">
+      <div class="nav-track">
+        <button class="nav-tab active" id="navOverview" onclick="switchTab('overview',this)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="0" y="0" width="6" height="6" rx="1" fill="currentColor" />
+            <rect x="8" y="0" width="6" height="6" rx="1" fill="currentColor" />
+            <rect x="0" y="8" width="6" height="6" rx="1" fill="currentColor" />
+            <rect x="8" y="8" width="6" height="6" rx="1" fill="currentColor" />
+          </svg>
+          Overview
+        </button>
+
+        <button class="nav-tab" id="navPivot" onclick="switchTab('pivot',this)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="1" y="2" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+            <path d="M1 6h12M5 2v10M9 2v10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+          Pivot
+        </button>
+        <button class="nav-tab" id="navIntelligence" onclick="switchTab('intelligence',this)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="7" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          Intelligence
+        </button>
+        <button class="nav-tab" id="navTasks" onclick="switchTab('tasks',this)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5" />
+            <path d="M4 7h6M4 4.5h6M4 9.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+          Tasks
+          <span id="taskBadge" class="task-nav-badge" style="display:none">0</span>
+        </button>
+
+      </div>
+    </nav>
+
+    <!-- TAB CONTENTS -->
+    <div class="tab-area">
+
+      <!-- TAB 1: OVERVIEW -->
+      <div class="tab-content active fade-in" id="tabOverview">
+        <div id="kpiFloatRow" class="kpi-header-strip">
+
+          <!-- LEFT: Clock + Date -->
+          <div class="kpi-widget kpi-widget-clock">
+            <div class="kpi-widget-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div class="kpi-widget-body">
+              <div class="kpi-clock-time" id="liveClockTime">00:00:00</div>
+              <div class="kpi-clock-date" id="liveClockDate">Monday, 1 Jan 2025</div>
+            </div>
+          </div>
+
+          <!-- KPI CARDS — injected by renderOverview() into this container -->
+          <div class="kpi-cards-row" id="kpiCardsRow"></div>
+
+          <!-- RIGHT: Water Reminder -->
+          <div class="kpi-widget kpi-widget-water">
+            <div class="kpi-widget-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2C12 2 5 10 5 15a7 7 0 0 0 14 0c0-5-7-13-7-13z"/>
+              </svg>
+            </div>
+            <div class="kpi-widget-body">
+              <div class="kpi-widget-title">Water</div>
+              <div class="kpi-water-glasses" id="waterGlasses"></div>
+              <div class="kpi-widget-sub" id="waterCount">0 / 8 glasses</div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Mini Task Count -->
+          <div class="kpi-widget kpi-widget-tasks" onclick="switchTab('tasks', document.querySelector('.nav-tab:last-of-type'))" style="cursor:pointer">
+            <div class="kpi-widget-icon">✅</div>
+            <div class="kpi-widget-body">
+              <div class="kpi-widget-title">Tasks</div>
+              <div class="kpi-task-count" id="miniTaskCount">0</div>
+              <div class="kpi-widget-sub">pending today</div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Mini Calendar -->
+          <div class="kpi-widget kpi-widget-cal">
+            <div class="kpi-widget-icon">📅</div>
+            <div class="kpi-widget-body">
+              <div class="kpi-widget-title" id="miniCalMonth">March 2025</div>
+              <div class="kpi-cal-day" id="miniCalDay">15</div>
+              <div class="kpi-widget-sub" id="miniCalWeekday">Sunday</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Recent Orders — shown first so users see data immediately -->
+        <div class="card no-pad" id="txCard" style="margin-bottom:16px">
+          <div style="padding:18px 18px 10px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div class="card-title" style="font-size:18px; font-weight:600;">Recent Orders</div>
+              <div class="card-subtitle" id="txCountSubtitle" style="margin-top:2px;">Showing 0 of 0 orders</div>
+            </div>
+            <button onclick="toggleTxExpanded()" class="btn-expand" id="txExpandBtn" style="background:var(--cream); border:1px solid var(--cream2); padding:6px 14px; border-radius:16px; font-size:12px; font-weight:600; cursor:pointer;" title="Expand to fullscreen">⛶ Expand</button>
+          </div>
+          <div class="filter-bar" id="txFilterBar" style="padding: 0 18px 10px; align-items:flex-start;">
+            <div style="display:flex; gap:6px; flex-wrap:wrap; width:100%; margin-bottom:6px;">
+              <input type="text" class="filter-input" id="txSearch" placeholder="🔍 Customer…" oninput="applyTxFilter()" style="width:240px" />
+              <input type="date" class="filter-date" id="txDateFrom" title="From date" oninput="applyTxFilter()" />
+              <span class="filter-date-sep" style="margin-top:5px;">→</span>
+              <input type="date" class="filter-date" id="txDateTo" title="To date" oninput="applyTxFilter()" />
+              <select class="filter-sel" id="txPlant" onchange="applyTxFilter()"><option value="">All Plants</option></select>
+              <select class="filter-sel" id="txIndustry" onchange="applyTxFilter()"><option value="">All Industries</option></select>
+            </div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; width:100%; align-items:center;">
+              <select class="filter-sel" id="txSalesperson" onchange="applyTxFilter()"><option value="">All Reps</option></select>
+              <select class="filter-sel" id="txRegion" onchange="applyTxFilter()"><option value="">All Regions</option></select>
+              <span class="filter-count" id="txCount" style="margin-left:auto">—</span>
+              
+              <div style="position:relative;">
+                <button class="filter-reset" onclick="toggleColDropdown()" id="btnColToggle" style="background:#fff; border:1px solid var(--cream2);">☷ Columns</button>
+                <div id="colDropdown" style="display:none; position:absolute; right:0; top:100%; background:#fff; border:1px solid var(--cream2); padding:10px; border-radius:8px; box-shadow:var(--shadow-card); z-index:100; min-width:140px; margin-top:4px;">
+                  <label style="display:flex; align-items:center; gap:6px; font-size:12px; margin-bottom:6px; cursor:pointer;"><input type="checkbox" checked onchange="applyColToggle()" id="chk_date"> Date</label>
+                  <label style="display:flex; align-items:center; gap:6px; font-size:12px; margin-bottom:6px; cursor:pointer;"><input type="checkbox" checked onchange="applyColToggle()" id="chk_customer"> Customer</label>
+                  <label style="display:flex; align-items:center; gap:6px; font-size:12px; margin-bottom:6px; cursor:pointer;"><input type="checkbox" checked onchange="applyColToggle()" id="chk_plant"> Plant</label>
+                  <label style="display:flex; align-items:center; gap:6px; font-size:12px; margin-bottom:6px; cursor:pointer;"><input type="checkbox" checked onchange="applyColToggle()" id="chk_industry"> Industry</label>
+                  <label style="display:flex; align-items:center; gap:6px; font-size:12px; margin-bottom:6px; cursor:pointer;"><input type="checkbox" checked onchange="applyColToggle()" id="chk_salesperson"> Salesperson</label>
+                  <label style="display:flex; align-items:center; gap:6px; font-size:12px; margin-bottom:6px; cursor:pointer;"><input type="checkbox" checked onchange="applyColToggle()" id="chk_region"> Region</label>
+                  <label style="display:flex; align-items:center; gap:6px; font-size:12px; cursor:pointer;"><input type="checkbox" checked onchange="applyColToggle()" id="chk_value"> Value</label>
+                </div>
+              </div>
+              <button class="filter-reset" onclick="resetTxFilter()">✕ Reset</button>
+            </div>
+          </div>
+          <div class="table-wrap tx-table-wrap" style="overflow-x:auto;">
+            <table class="data-table tx-table" id="txTable">
+              <thead>
+                <tr>
+                  <th class="col-date">Date</th>
+                  <th class="col-customer">Customer</th>
+                  <th class="col-plant">Plant</th>
+                  <th class="col-industry">Industry</th>
+                  <th class="col-salesperson">Salesperson</th>
+                  <th class="col-region">Region</th>
+                  <th class="col-value">Value</th>
+                </tr>
+              </thead>
+              <tbody id="txBody"></tbody>
+            </table>
+          </div>
+          <div id="txPagination" style="display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-top:1px solid #eee;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <select id="txRowsPerPage" onchange="changeTxPageSize()" class="filter-sel" style="padding:4px 8px; font-size:11px;">
+                <option value="25">25 / page</option>
+                <option value="50">50 / page</option>
+                <option value="100" selected>100 / page</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;" id="txPageControls">
+              <button class="filter-reset" onclick="txPrevPage()" id="btnTxPrev">← Prev</button>
+              <span id="txPageStatus" style="font-size:11px; color:var(--mid-gray);">Page 1 of 1</span>
+              <button class="filter-reset" onclick="txNextPage()" id="btnTxNext">Next →</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card card-dark no-pad" style="margin-bottom:16px;">
+          <div style="padding:18px 18px 10px">
+            <div class="card-title" style="color:#fff">Customer × Plant</div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table data-table-dark" id="cpTable">
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Plant</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody id="cpBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Row 1: Pipeline Progress | Revenue Trend | Industry Mix -->
+        <div class="grid-3-asym">
+          <div class="card">
+            <div class="card-title">Pipeline Progress</div>
+            <div class="card-subtitle">by plant type</div>
+            <div id="pipelineProgress" class="progress-list" style="margin-top:14px"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Revenue Trend</div>
+            <div class="card-subtitle" id="trendSubtitle"></div>
+            <div class="chart-wrap" style="height:180px"><canvas id="chartRevTrend"></canvas></div>
+          </div>
+          <div class="card card-dark">
+            <div class="card-title" style="color:#fff">Industry Mix</div>
+            <div class="card-subtitle" style="color:rgba(255,255,255,.5)">by revenue share</div>
+            <div id="industryLegend" class="industry-legend"></div>
+            <div class="chart-wrap" style="height:180px"><canvas id="chartIndustry"></canvas></div>
+          </div>
+        </div>
+
+        <!-- Row 2: Top Plants | Revenue by Region | Salesperson -->
+        <div class="grid-3-equal">
+          <div class="card">
+            <div class="card-title">Top Plants</div>
+            <div class="chart-wrap" style="height:200px"><canvas id="chartPlants"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Revenue by Region</div>
+            <div class="chart-wrap" style="height:200px"><canvas id="chartRegions"></canvas></div>
+          </div>
+          <div class="card card-yellow">
+            <div class="card-title">Salesperson Performance</div>
+            <div class="chart-wrap" style="height:200px"><canvas id="chartSales"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+
+
+
+      <!-- TAB 4: TARGETS -->
+      <div class="tab-content" id="tabTargets">
+        <div class="card" style="margin-bottom:24px">
+          <div class="card-title">Set Monthly Revenue Targets (₹)</div>
+          <div id="targetInputGrid" class="target-input-grid"></div>
+          <button class="btn-primary" style="margin-top:16px;border-radius:var(--r-pill)"
+            onclick="updateTargets()">Update Targets</button>
+        </div>
+        <div class="grid-2-equal" style="margin-bottom:24px">
+          <div class="card">
+            <div class="card-title">Plant Targets — Actual vs Goal</div>
+            <div class="chart-wrap" style="height:220px"><canvas id="chartTargetProd"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Salesperson Targets — Actual vs Goal</div>
+            <div class="chart-wrap" style="height:220px"><canvas id="chartTargetSales"></canvas></div>
+          </div>
+        </div>
+        <div id="targetCards" class="target-cards-grid"></div>
+      </div>
+
+
+
+      <!-- TAB 5b: PIVOT -->
+      <div class="tab-content" id="tabPivot">
+        <div id="pivotEmptyState" style="display:none; text-align:center; padding: 40px; color: var(--mid-gray);">
+          Load a Google Sheet first to see pivot analysis
+        </div>
+        <div id="pivotContentState">
+          <!-- SECTION 1: Pivot Builder -->
+          <div class="card" style="margin-bottom: 24px;">
+            <div class="card-title">Build Your Own Pivot</div>
+            <div class="card-subtitle" style="margin-bottom: 16px;">Select any row dimension, column dimension, and value</div>
+            
+            <div class="task-add-row" style="margin-bottom: 24px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 11px; font-family: var(--mono); color: var(--light-gray);">Rows:</span>
+                <select id="pivotRowDim" class="filter-sel" style="min-width: 120px;">
+                  <option value="plant">Plant</option>
+                  <option value="customer">Customer</option>
+                  <option value="industry">Industry</option>
+                  <option value="salesperson">Salesperson</option>
+                  <option value="region">Region</option>
+                  <option value="stage">Stage</option>
+                </select>
+              </div>
+              
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 11px; font-family: var(--mono); color: var(--light-gray);">Columns:</span>
+                <select id="pivotColDim" class="filter-sel" style="min-width: 120px;">
+                  <option value="">None</option>
+                  <option value="region" selected>Region</option>
+                  <option value="industry">Industry</option>
+                  <option value="salesperson">Salesperson</option>
+                  <option value="stage">Stage</option>
+                  <option value="plant">Plant</option>
+                </select>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 11px; font-family: var(--mono); color: var(--light-gray);">Value:</span>
+                <select id="pivotValueMetric" class="filter-sel" style="min-width: 140px;">
+                  <option value="sum_value">Sum of Value</option>
+                  <option value="count_orders">Count of Orders</option>
+                  <option value="avg_value">Average Value</option>
+                  <option value="unique_customers">Count of Unique Customers</option>
+                  <option value="all_customers">Count of All Customers</option>
+                </select>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 11px; font-family: var(--mono); color: var(--light-gray);">Chart:</span>
+                <select id="pivotChartType" class="filter-sel" style="min-width: 120px;">
+                  <option value="bar">Bar Chart</option>
+                  <option value="horizontalBar">Horizontal Bar</option>
+                  <option value="donut">Donut Chart</option>
+                  <option value="tableOnly" selected>Table Only</option>
+                </select>
+              </div>
+
+              <!-- Date Range Filter -->
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size:11px;font-weight:700;color:var(--mid-gray);text-transform:uppercase;letter-spacing:.06em;">From</span>
+                <input type="date" id="pivotDateFrom"
+                  style="border:1px solid var(--cream2);border-radius:var(--r-pill);padding:5px 12px;font-size:12px;font-family:var(--font);background:var(--white-card);color:var(--near-black);outline:none;cursor:pointer;"
+                  onchange="highlightActivePivotFilters()"/>
+
+                <span style="font-size:11px;font-weight:700;color:var(--mid-gray);text-transform:uppercase;letter-spacing:.06em;">To</span>
+                <input type="date" id="pivotDateTo"
+                  style="border:1px solid var(--cream2);border-radius:var(--r-pill);padding:5px 12px;font-size:12px;font-family:var(--font);background:var(--white-card);color:var(--near-black);outline:none;cursor:pointer;"
+                  onchange="highlightActivePivotFilters()"/>
+
+                <button onclick="clearPivotDates()"
+                  style="border:1px solid var(--cream2);border-radius:var(--r-pill);padding:5px 12px;font-size:11px;color:var(--mid-gray);cursor:pointer;background:none;font-family:var(--font);transition:all .2s;"
+                  onmouseover="this.style.borderColor='var(--near-black)';this.style.color='var(--near-black)'"
+                  onmouseout="this.style.borderColor='var(--cream2)';this.style.color='var(--mid-gray)'">
+                  ✕ Clear Dates
+                </button>
+              </div>
+
+              <button class="btn-primary" style="margin-left: auto; border-radius: var(--r-pill);" onclick="runPivotBuilder()">Run Pivot</button>
+            </div>
+
+            <div id="pivotFilterInfo" style="display:none;align-items:center;padding:6px 0;"></div>
+            <div id="pivotBuilderResult">
+               <div class="chart-wrap" style="height: 300px; margin-bottom: 24px; display: none;" id="pivotResultChartWrap">
+                 <canvas id="pivotResultChart"></canvas>
+               </div>
+               <div class="table-wrap" style="max-height: 400px; overflow-y: auto;" id="pivotSummaryTableWrap"></div>
+            </div>
+          </div>
+
+          <!-- SECTION 2: Pre-built Cards -->
+          <div class="grid-3-equal" style="margin-bottom: 24px;">
+            <div class="card">
+              <div class="card-title">Orders by Plant</div>
+              <div class="card-subtitle">count</div>
+              <div class="chart-wrap" style="height: 200px;"><canvas id="pivotPlantCount"></canvas></div>
+            </div>
+            <div class="card">
+              <div class="card-title">Revenue by Plant</div>
+              <div class="card-subtitle">total ₹</div>
+              <div class="chart-wrap" style="height: 200px;"><canvas id="pivotPlantRev"></canvas></div>
+            </div>
+            <div class="card card-yellow">
+              <div class="card-title">Salesperson Revenue</div>
+              <div class="card-subtitle">total ₹</div>
+              <div class="chart-wrap" style="height: 200px;"><canvas id="pivotSalesRev"></canvas></div>
+            </div>
+          </div>
+
+          <div class="grid-3-equal" style="margin-bottom: 24px;">
+            <div class="card">
+              <div class="card-title">Orders by Region</div>
+              <div id="pivotRegionLegend" class="industry-legend" style="margin-top: 8px;"></div>
+              <div class="chart-wrap" style="height: 160px;"><canvas id="pivotRegionDonut"></canvas></div>
+            </div>
+            <div class="card card-dark">
+              <div class="card-title" style="color: #fff">Avg Ticket Size</div>
+              <div class="card-subtitle" style="color: rgba(255,255,255,.5)">per plant</div>
+              <div class="chart-wrap" style="height: 200px;"><canvas id="pivotAvgPlant"></canvas></div>
+            </div>
+            <div class="card">
+              <div class="card-title">Revenue by Industry</div>
+              <div class="chart-wrap" style="height: 200px;"><canvas id="pivotIndustryRev"></canvas></div>
+            </div>
+          </div>
+
+          <!-- SECTION 3: Cross Table -->
+          <div class="card no-pad" style="overflow-x: auto;">
+            <div style="padding: 18px 18px 10px;">
+              <div class="card-title">Plant × Region Cross Analysis</div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table" id="pivotCrossTable">
+                <thead id="pivotCrossHead"></thead>
+                <tbody id="pivotCrossBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- TAB 5: INTELLIGENCE -->
+      <div class="tab-content" id="tabIntelligence">
+        <div class="section-heading">🧠 Intelligence</div>
+        <div class="card" id="dealVelocityCard" style="margin-bottom:24px">
+          <div class="card-title" style="display:flex;align-items:center;gap:8px">
+            ⚡ Deal Velocity Tracker
+            <span id="velocityWarning" style="display:none;font-size:12px;color:#C0392B">⚠️ Too many deals in Negotiation</span>
+          </div>
+          <div class="card-subtitle">Track deals through pipeline stages with velocity metrics</div>
+          
+          <!-- Timeline -->
+          <div id="velocityTimeline" class="velocity-timeline" style="margin-top:20px;margin-bottom:24px"></div>
+          
+          <!-- Table -->
+          <div class="table-wrap" style="max-height:none">
+            <table class="data-table" id="velocityTable">
+              <thead>
+                <tr>
+                  <th>Stage</th>
+                  <th class="amount-cell">Deals</th>
+                  <th class="amount-cell">Avg Days</th>
+                  <th class="amount-cell">Total Value</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="velocityBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Customer Health Score Card -->
+        <div class="card" id="customerHealthCard" style="margin-bottom:24px">
+          <div class="card-title">🏥 Customer Health Score</div>
+          <div class="card-subtitle">Monitor customer engagement and activity</div>
+          <div id="healthCardsGrid" class="health-cards-grid" style="margin-top:20px"></div>
+        </div>
+        <!-- Revenue Forecaster Card -->
+        <div class="card card-dark" id="revenueForecasterCard" style="margin-bottom:24px">
+          <div class="card-title" style="color:#fff">🔮 Revenue Forecaster</div>
+          <div class="card-subtitle" style="color:rgba(255,255,255,0.5)">AI-powered forecast based on recent trends</div>
+          <div class="forecast-content" style="margin-top:20px">
+            <div class="forecast-main">
+              <div class="forecast-number" id="forecastNumber">—</div>
+              <div class="forecast-trend" id="forecastTrend"></div>
+              <div class="forecast-confidence" id="forecastConfidence"></div>
+            </div>
+            <div class="forecast-chart-wrap" style="height:120px;margin-top:16px">
+              <canvas id="forecastSparkline"></canvas>
+            </div>
+            <div class="forecast-meta" id="forecastMeta" style="margin-top:12px;font-size:12px;color:rgba(255,255,255,0.5)"></div>
+          </div>
+        </div>
+
+        <!-- Seasonal Pattern Detector Card -->
+        <div class="card" id="seasonalPatternCard" style="margin-bottom:24px">
+          <div class="card-title">📅 Seasonal Pattern Detector</div>
+          <div class="card-subtitle">Revenue distribution across months</div>
+          <div id="seasonalHeatmap" class="seasonal-heatmap" style="margin-top:20px"></div>
+        </div>
+
+        <!-- Productivity Section -->
+        <div class="section-heading" style="margin-top:32px">⚡ Productivity</div>
+        <div class="card" id="followUpCard" style="margin-bottom:24px">
+          <div class="card-title">📋 Smart Follow-up List</div>
+          <div class="card-subtitle">Customers who haven't ordered in 45+ days</div>
+          <div id="followUpCount" style="margin-top:16px;margin-bottom:12px;font-size:13px;font-weight:600;color:var(--near-black)"></div>
+          <div id="followUpEmpty" style="display:none;padding:24px;text-align:center;color:var(--mid-gray)">
+            ✅ All customers are active — no follow-ups needed!
+          </div>
+          <div class="table-wrap" id="followUpTableWrap" style="max-height:none">
+            <table class="data-table" id="followUpTable">
+              <thead>
+                <tr>
+                  <th>Priority</th>
+                  <th>Customer</th>
+                  <th>Last Order</th>
+                  <th class="amount-cell">Days Inactive</th>
+                  <th class="amount-cell">Lifetime Value</th>
+                  <th>Last Plant</th>
+                  <th>Rep</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="followUpBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Comparison Mode Card -->
+        <div class="card" id="comparisonCard" style="margin-bottom:24px">
+          <div class="card-title" style="margin-bottom:12px;">⚔️ Comparison Mode</div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+            <span style="font-size:11px;font-weight:700;color:var(--mid-gray);text-transform:uppercase;letter-spacing:.06em;">Compare</span>
+            <select id="compareType" onchange="populateCompareDropdowns()" style="border:1px solid var(--cream2);border-radius:var(--r-pill);padding:6px 14px;font-size:12px;font-family:var(--font);background:var(--white-card);color:var(--near-black);outline:none;">
+              <option value="salesperson">Salesperson</option>
+              <option value="product">Plant</option>
+              <option value="region">Region</option>
+            </select>
+            <select id="compareA" style="border:1px solid var(--cream2);border-radius:var(--r-pill);padding:6px 14px;font-size:12px;font-family:var(--font);background:var(--white-card);color:var(--near-black);outline:none;"></select>
+            <span style="color:var(--mid-gray);font-weight:800;font-size:14px;">VS</span>
+            <select id="compareB" style="border:1px solid var(--cream2);border-radius:var(--r-pill);padding:6px 14px;font-size:12px;font-family:var(--font);background:var(--white-card);color:var(--near-black);outline:none;"></select>
+            <button onclick="runComparison()" style="background:var(--near-black);color:#fff;border:none;border-radius:var(--r-pill);padding:7px 20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);">Compare →</button>
+          </div>
+          <div id="comparisonResult"></div>
+        </div>
+      </div>
+
+      <!-- TAB 7: TASKS & CALENDAR -->
+      <div class="tab-content" id="tabTasks">
+        <div class="grid-2-equal">
+
+          <!-- CALENDAR -->
+          <div class="card">
+            <div class="cal-header">
+              <button class="cal-nav" onclick="calPrev()">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
+              </button>
+              <div id="calTitle" class="cal-title"></div>
+              <button class="cal-nav" onclick="calNext()">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
+              </button>
+            </div>
+            <div class="cal-grid">
+              <div class="cal-dow">Sun</div>
+              <div class="cal-dow">Mon</div>
+              <div class="cal-dow">Tue</div>
+              <div class="cal-dow">Wed</div>
+              <div class="cal-dow">Thu</div>
+              <div class="cal-dow">Fri</div>
+              <div class="cal-dow">Sat</div>
+            </div>
+            <div id="calDays" class="cal-grid cal-days-grid"></div>
+            <div class="cal-legend">
+              <span class="cal-legend-item"><span class="cal-dot-sample"></span> Has tasks</span>
+              <span class="cal-legend-item"><span class="cal-today-sample"></span> Today</span>
+            </div>
+          </div>
+
+          <!-- TASK LIST -->
+          <div class="card" style="display:flex;flex-direction:column;gap:0">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px">
+              <div>
+                <div class="card-title">Tasks</div>
+                <div class="card-subtitle" id="taskDateLabel">Select a date</div>
+              </div>
+              <div id="taskPendingCount" class="filter-count"></div>
+            </div>
+
+            <!-- Add task row -->
+            <div class="task-add-row">
+              <input type="text" id="taskInput" class="filter-input" style="flex:1;min-width:0"
+                placeholder="Add a task…" onkeydown="if(event.key==='Enter')addTask()" />
+              <select id="taskPriority" class="filter-sel">
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+                <option value="high">High</option>
+              </select>
+              <button class="btn-primary" style="border-radius:var(--r-pill);white-space:nowrap" onclick="addTask()">Add
+                Task</button>
+            </div>
+
+            <!-- Filter pills -->
+            <div class="task-filter-pills" id="taskFilterPills">
+              <button class="task-pill active" data-filter="all" onclick="setTaskFilter('all',     this)">All</button>
+              <button class="task-pill" data-filter="pending" onclick="setTaskFilter('pending', this)">Pending</button>
+              <button class="task-pill" data-filter="done" onclick="setTaskFilter('done',    this)">Done</button>
+            </div>
+
+            <!-- Task list -->
+            <div id="taskList" class="task-list"></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /tab-area -->
+  </div><!-- /dashboardScreen -->
+
+  <!-- API KEY MODAL -->
+  <div id="apiModal" class="modal-overlay" onclick="closeApiModal(event)">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="card-title">Claude API Key</span>
+        <button class="modal-close" onclick="closeApiModal(null)">✕</button>
+      </div>
+      <p style="font-size:13px;color:var(--text-body);line-height:1.6;margin:0 0 16px">
+        Adding your Claude API key enables AI-generated insights and live chat answers. Get a key at <a
+          href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.
+      </p>
+      <input type="password" id="modalApiKey" class="url-input" style="font-family:var(--mono);margin-bottom:12px"
+        placeholder="sk-ant-…" />
+      <button class="btn-primary" style="width:100%;border-radius:var(--r-pill)" onclick="saveApiKey()">Save API
+        Key</button>
+      <p style="font-size:11px;color:var(--light-gray);text-align:center;margin:12px 0 0">Key stored in browser session
+        only</p>
+    </div>
+  </div>
+
+  <!-- FLOATING REFRESH BUTTON -->
+  <button id="refreshFab" class="refresh-fab" onclick="manualRefresh()" title="Refresh from Google Sheet"
+    style="display:none">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <path d="M17 10A7 7 0 1 1 10 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      <path d="M14 3h3v3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  </button>
+
+  <script src="demo-data.js"></script>
+  <script src="charts.js"></script>
+  <script src="app.js"></script>
+  <script src="tasks.js"></script>
+
+  <!-- QUICK NOTE MODAL -->
+  <div id="noteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;align-items:center;justify-content:center;">
+    <div style="background:var(--white-card);border:var(--border-card);border-radius:var(--r-card);padding:1.5rem;width:100%;max-width:400px;margin:1rem;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <div id="noteModalTitle" style="font-size:15px;font-weight:700;color:var(--near-black);"></div>
+        <button onclick="document.getElementById('noteModal').style.display='none'" style="background:var(--cream2);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:16px;color:var(--near-black);">×</button>
+      </div>
+      <textarea id="noteTextarea" placeholder="Add a note about this customer…" style="width:100%;height:120px;border:1px solid var(--cream2);border-radius:var(--r-inner);padding:10px;font-family:var(--font);font-size:13px;color:var(--near-black);background:var(--cream);outline:none;resize:vertical;"></textarea>
+      <button onclick="saveCustomerNote()" style="width:100%;margin-top:.75rem;background:var(--near-black);color:#fff;border:none;border-radius:var(--r-pill);padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">Save Note</button>
+    </div>
+  </div>
+</body>
+
+</html>
